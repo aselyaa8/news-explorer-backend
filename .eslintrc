@@ -1,0 +1,16 @@
+{
+  "extends": "airbnb-base",
+  "rules": {
+    "eslint-disable": "off",
+    "eslint-disable-line": "off",
+    "eslint-disable-next-line": "off",
+    "no-underscore-dangle": [
+      "off",
+      {
+        "allow": [
+          "_id"
+        ]
+      }
+    ]
+  }
+}
