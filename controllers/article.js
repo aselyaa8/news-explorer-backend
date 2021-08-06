@@ -7,25 +7,26 @@ const getSavedArticlesHandler = (req, res, next) => {
   Article.find({ owner: req.user._id })
     .then((articles) => res.send(articles))
     .catch(next);
-}
+};
 
 const createArticleHandler = (req, res, next) => {
-  const { keyword, title, text, date, source, link, image } = req.body;
+  const {
+    keyword, title, text, date, source, link, image,
+  } = req.body;
   const owner = req.user._id;
-  Article.create({ keyword, title, text, date, source, link, image, owner })
+  Article.create({
+    keyword, title, text, date, source, link, image, owner,
+  })
     .then((article) => {
       res.send(article);
     })
     .catch((err) => {
-      console.log(err);
-      //chanhe it
-      //
-      //
-    })
-}
+      if (err.name === 'ValidationError') return next(new BadRequestError(err.message));
+      return next(err);
+    });
+};
 
 const deleteArticleHandler = (req, res, next) => {
-
   Article.findById(req.params.articleId)
     .then((article) => {
       if (!article) {
@@ -50,9 +51,8 @@ const deleteArticleHandler = (req, res, next) => {
       if (err.name === 'CastError') return next(new BadRequestError('Bad Request'));
       return next(err);
     });
-
-}
+};
 
 module.exports = {
-  getSavedArticlesHandler, createArticleHandler, deleteArticleHandler
+  getSavedArticlesHandler, createArticleHandler, deleteArticleHandler,
 };

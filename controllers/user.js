@@ -6,12 +6,13 @@ const BadRequestError = require('../errors/bad-request-error');
 const UnauthorizedError = require('../errors/unauthorized-error');
 const ConflictError = require('../errors/conflict-error');
 const ForbiddenError = require('../errors/forbidden-error');
+const NotFoundError = require('../errors/not-found-error');
 
 const getUserProfileHandler = (req, res, next) => {
   if (!req.params === req.user._id) {
     return next(new ForbiddenError('Forbidden request'));
   }
-  return User.findById(req.params.id)
+  return User.findById(req.user._id)
     .then((user) => {
       if (user === null) {
         next(new NotFoundError('User not found'));
@@ -22,7 +23,7 @@ const getUserProfileHandler = (req, res, next) => {
       if (err.name === 'CastError') return next(new BadRequestError('Bad Request'));
       return next(err);
     });
-}
+};
 
 const userCreateHandler = (req, res, next) => {
   const { name, email, password } = req.body;
@@ -62,16 +63,16 @@ const userLogin = (req, res, next) => {
     .then((user) => {
       const token = jwt.sign({
         _id: user._id,
-      }, process.env.JWT_SECRET ? process.env.JWT_SECRET : 'default-key', { expiresIn: '7d' });
+      }, process.env.NODE_ENV === 'production' ? process.env.JWT_SECRET : 'default-key', { expiresIn: '7d' });
       res.send({ token });
     })
     .catch((err) => {
       next(new UnauthorizedError(err.message));
     });
-}
+};
 
 module.exports = {
   getUserProfileHandler,
   userCreateHandler,
   userLogin,
-}
+};
